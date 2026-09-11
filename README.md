@@ -1,182 +1,220 @@
 # Python Teacher AI
 
-Учебный проект по созданию RAG-системы.
+Учебная AI-система для изучения Python.
 
-Проект демонстрирует полный pipeline подготовки базы знаний:
+Проект объединяет **RAG, несколько AI-агентов, PostgreSQL и Flask** в единую систему обучения:
 
 ```text
-Markdown-файлы
-      ↓
-Загрузка документов
-      ↓
-Семантическое разбиение на chunks
-      ↓
-Создание embeddings
-      ↓
-Qdrant
-      ↓
-Семантический поиск
-      ↓
-Получение релевантных фрагментов
+Пользователь
+     ↓
+   Flask
+     ↓
+RAG Retrieval
+     ↓
+AI Agents
+ ┌───┼───────────┐
+ ↓   ↓           ↓
+Task Generator  Checker  Tutor
+     ↓
+PostgreSQL
 ```
 
-## Цель проекта
+## Возможности
 
-Основная цель проекта — продемонстрировать работу основных компонентов RAG-системы:
+Система позволяет:
 
-* подготовка базы знаний;
-* загрузка документов;
-* семантическое разбиение документов на chunks;
-* создание metadata;
-* создание embeddings;
-* хранение векторных представлений в Qdrant;
-* семантический поиск;
-* проверка качества retrieval.
+* зарегистрироваться и войти в приложение;
+* выбрать тему и сложность Python-задачи;
+* получить сгенерированную AI практическую задачу;
+* решить задачу;
+* получить автоматическую проверку решения и оценку;
+* задать дополнительные вопросы AI-репетитору;
+* сохранять задачи, решения, оценки и диалоги в PostgreSQL;
+* использовать базу знаний Python для генерации, проверки и объяснения материала.
 
 ---
 
 # Технологии
 
 * Python 3.14
+* Flask
 * OpenAI API
-* `text-embedding-3-small`
 * Qdrant
-* Docker
-* Docker Compose
+* PostgreSQL
+* SQLAlchemy
+* psycopg
+* Jinja2
+* Docker / Docker Compose
 * `qdrant-client`
-* `python-dotenv`
+* `text-embedding-3-small`
+
+---
+
+# Архитектура
+
+Проект состоит из нескольких основных частей.
+
+### Knowledge Base + RAG
+
+Официальная документация Python преобразуется в RAG-базу:
+
+```text
+Markdown
+   ↓
+Loader
+   ↓
+Semantic Chunking
+   ↓
+Embeddings
+   ↓
+Qdrant
+   ↓
+Semantic Retrieval
+```
+
+RAG используется AI-агентами как контекст из проверенной базы знаний.
+
+### AI Agents
+
+В проекте работают три агента:
+
+**Task Generator**
+
+Получает тему, сложность и релевантный контекст из RAG и создаёт практическую задачу.
+
+**Task Checker**
+
+Получает условие задачи, решение пользователя и контекст RAG. Проверяет решение и возвращает:
+
+* корректность;
+* оценку от 0 до 10;
+* ошибки;
+* объяснение;
+* рекомендации.
+
+**Tutor**
+
+Работает после проверки задачи. Использует условие, решение, результат проверки, RAG-контекст и историю диалога, чтобы
+отвечать на вопросы пользователя и помогать разобраться в теме.
 
 ---
 
 # Структура проекта
 
 ```text
-python_teacher_aI/
+python-teacher-ai/
+│
+├── ai/
+│   ├── gpt.py
+│   ├── task_generator.py
+│   ├── task_checker.py
+│   └── tutor.py
+│
+├── app/
+│   ├── routes.py
+│   └── pipeline.py
+│
+├── database/
+│   ├── connection.py
+│   ├── models.py
+│   ├── crud.py
+│   └── init_db.py
 │
 ├── knowledge/
 │   ├── basics/
-│   │   ├── variables.md
-│   │   ├── data_types.md
-│   │   ├── conditions.md
-│   │   ├── loops.md
-│   │   └── functions.md
-│   │
 │   ├── data_structures/
-│   │   ├── list.md
-│   │   ├── tuple.md
-│   │   ├── set.md
-│   │   └── dict.md
-│   │
 │   └── oop/
-│       ├── classes.md
-│       ├── encapsulation.md
-│       ├── inheritance.md
-│       ├── polymorphism.md
-│       └── magic_methods.md
 │
 ├── knowledgebase_pipeline/
-│   ├── __init__.py
 │   ├── config.py
 │   ├── loader.py
 │   ├── chunker.py
 │   ├── embeddings.py
-│   └── vector_store.py
+│   ├── vector_store.py
+│   └── retrieval.py
+│
+├── templates/
+│   ├── login.html
+│   ├── register.html
+│   ├── profile.html
+│   ├── generate.html
+│   └── task.html
+│
+├── tests/
+│   ├── test_task_generator.py
+│   ├── test_task_checker.py
+│   ├── test_tutor.py
+│   └── test_pipeline.py
 │
 ├── data/
-│   ├── chunks/
-│   │   ├── chunks.jsonl
-│   │   └── embeddings.jsonl
-│   │
-│   └── rag_test_report.txt
+│   └── chunks/
 │
 ├── docker-compose.yml
 ├── requirements.txt
-├── test_rag.py
-├── .env.example
-├── .gitignore
-└── README.md
+└── run.py
 ```
 
 ---
-
-# Требования
-
-Перед запуском необходимо установить:
-
-* Python 3.14;
-* Docker Desktop;
-* Git;
-
-Qdrant запускается локально в Docker.
-
-
----
-
-# 1. Клонирование проекта
+# Установка
 
 Клонировать репозиторий:
 
-```powershell
+```bash
 git clone https://github.com/uldiniumGit/python-teacher-ai.git
-```
-
-Перейти в директорию проекта:
-
-```powershell
 cd python-teacher-ai
 ```
 
----
-
-# 2. Создание виртуального окружения
-
 Создать виртуальное окружение:
 
-```powershell
+```bash
 python -m venv .venv
 ```
 
-Активировать его:
+Активировать виртуальное окружение.
+
+### Windows PowerShell
 
 ```powershell
 .venv\Scripts\Activate.ps1
 ```
 
----
+### Windows CMD
 
-# 3. Установка зависимостей
+```cmd
+.venv\Scripts\activate.bat
+```
 
-Установить зависимости проекта:
+### Linux / macOS
 
-```powershell
+```bash
+source .venv/bin/activate
+```
+
+Установить зависимости:
+
+```bash
 pip install -r requirements.txt
 ```
 
 ---
 
-# 4. Настройка переменных окружения
+# Настройка `.env`
 
-В корне проекта находится файл:
+Создать файл `.env` на основе `.env.example`.
 
-```text
-.env.example
-```
-
-Создать на его основе файл `.env`:
+### Windows PowerShell
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Открыть `.env` и указать свой OpenAI API key:
+### Linux / macOS
 
-```dotenv
-OPENAI_API_KEY=your_openai_api_key
+```bash
+cp .env.example .env
 ```
 
-Остальные параметры можно оставить без изменений.
-
-Пример конфигурации:
+Открыть `.env` и указать свой OpenAI API key:
 
 ```dotenv
 OPENAI_API_KEY=your_openai_api_key
@@ -188,186 +226,90 @@ CHUNK_OVERLAP=100
 
 QDRANT_URL=http://localhost:6333
 QDRANT_COLLECTION=python_knowledge
+
+POSTGRES_DB=python_teacher
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_HOST=localhost
+POSTGRES_PORT=15432
+
+DATABASE_URL=postgresql+psycopg://postgres:postgres@127.0.0.1:15432/python_teacher
+
+FLASK_SECRET_KEY=dev-secret-key
 ```
 
 ---
 
-# 5. Запуск Qdrant в Docker
+# Запуск
 
-Qdrant используется как локальная векторная база данных.
+Для запуска Qdrant и PostgreSQL требуется Docker.
 
-Перед запуском pipeline необходимо запустить Docker Desktop.
+Установить и запустить Docker Desktop на Windows или Docker Engine + Docker Compose на Linux.
 
-Затем в директории проекта выполнить:
+Из корня проекта выполнить:
 
-```powershell
+```bash
 docker compose up -d
 ```
 
-Проверить состояние контейнера:
+Проверить состояние контейнеров:
 
-```powershell
+```bash
 docker compose ps
 ```
 
-Контейнер Qdrant должен иметь статус `Up`.
+Проект использует два независимых Docker-сервиса:
 
-Qdrant будет доступен по адресу:
+* **Qdrant** — векторная база знаний;
+* **PostgreSQL** — база данных приложения.
+
+Qdrant доступен по адресу:
 
 ```text
 http://localhost:6333
 ```
 
-Для остановки контейнера:
+PostgreSQL доступен по адресу:
 
-```powershell
-docker compose stop
+```text
+localhost:15432
 ```
 
-Для повторного запуска:
+Инициализировать таблицы PostgreSQL:
 
-```powershell
-docker compose start
+```bash
+python database/init_db.py
 ```
 
-Данные Qdrant сохраняются в Docker volume и не удаляются при обычной остановке контейнера.
 
-> Не используйте `docker compose down -v`, если необходимо сохранить созданную базу Qdrant. Эта команда удаляет Docker volume вместе с данными.
+# RAG Pipeline
 
----
-
-# 6. Запуск pipeline
-
-Файлы pipeline запускаются **последовательно**, один за другим.
-
-Автоматического единого файла запуска pipeline в проекте нет.
-
-Порядок запуска следующий.
-
-## Шаг 1. Проверка конфигурации
+Если RAG-база ещё не подготовлена, выполнить:
 
 ```powershell
 python knowledgebase_pipeline/config.py
-```
-
-Скрипт проверяет конфигурацию проекта и наличие необходимых параметров окружения.
-
----
-
-## Шаг 2. Загрузка документов
-
-```powershell
 python knowledgebase_pipeline/loader.py
-```
-
-Скрипт загружает Markdown-файлы из директории:
-
-```text
-knowledge/
-```
-
-В результате формируется набор документов для дальнейшей обработки.
-
----
-
-## Шаг 3. Создание chunks
-
-```powershell
 python knowledgebase_pipeline/chunker.py
-```
-
-Скрипт:
-
-* анализирует структуру Markdown;
-* учитывает заголовки `#`, `##`, `###`;
-* сохраняет code blocks;
-* разделяет документы на семантически связанные фрагменты;
-* создаёт metadata;
-* присваивает каждому chunk уникальный ID.
-
-Результат сохраняется в:
-
-```text
-data/chunks/chunks.jsonl
-```
-
----
-
-## Шаг 4. Создание embeddings
-
-```powershell
 python knowledgebase_pipeline/embeddings.py
-```
-
-Для каждого chunk создаётся embedding с использованием модели:
-
-```text
-text-embedding-3-small
-```
-
-Результат сохраняется в:
-
-```text
-data/chunks/embeddings.jsonl
-```
-
----
-
-## Шаг 5. Загрузка embeddings в Qdrant
-
-Перед этим шагом Qdrant должен быть запущен:
-
-```powershell
-docker compose up -d
-```
-
-Затем:
-
-```powershell
 python knowledgebase_pipeline/vector_store.py
 ```
 
-Скрипт:
+Основные результаты:
 
-* подключается к Qdrant;
-* создаёт коллекцию `python_knowledge`, если она отсутствует;
-* загружает embeddings;
-* сохраняет текст chunks;
-* сохраняет metadata;
-* выполняет проверку количества загруженных точек.
+```text
+data/chunks/chunks.jsonl
+data/chunks/embeddings.jsonl
+```
 
----
+После загрузки в Qdrant агенты могут выполнять semantic retrieval и использовать найденные chunks как контекст.
 
-# 7. Тестирование RAG
-
-После выполнения всех предыдущих шагов можно запустить:
+Проверить retrieval:
 
 ```powershell
 python test_rag.py
 ```
 
-Тест выполняет семантический поиск по базе знаний.
-
-Используются тестовые запросы:
-
-```text
-Что такое list в Python?
-
-Что такое наследование в Python?
-
-Что такое магические методы в Python?
-```
-
-Для каждого запроса:
-
-1. создаётся embedding запроса;
-2. выполняется поиск в Qdrant;
-3. извлекаются наиболее релевантные chunks;
-4. выводится similarity score;
-5. выводятся metadata найденных chunks;
-6. выводится содержимое найденных фрагментов.
-
-Результаты тестирования сохраняются в:
+Результат сохраняется в:
 
 ```text
 data/rag_test_report.txt
@@ -375,55 +317,113 @@ data/rag_test_report.txt
 
 ---
 
-# Полный порядок запуска
+# Запуск AI Teacher
 
-После установки проекта весь pipeline запускается следующими командами:
+После запуска Docker, подготовки RAG и инициализации PostgreSQL:
 
 ```powershell
-docker compose up -d
-
-python knowledgebase_pipeline/config.py
-
-python knowledgebase_pipeline/loader.py
-
-python knowledgebase_pipeline/chunker.py
-
-python knowledgebase_pipeline/embeddings.py
-
-python knowledgebase_pipeline/vector_store.py
-
-python test_rag.py
+python run.py
 ```
 
-Каждый следующий этап использует результат предыдущего.
+Приложение доступно по адресу:
+
+```text
+http://127.0.0.1:5000
+```
+
+Основной пользовательский сценарий:
+
+```text
+Регистрация / вход
+       ↓
+Выбор темы и сложности
+       ↓
+RAG Retrieval
+       ↓
+Task Generator
+       ↓
+Задача
+       ↓
+Решение пользователя
+       ↓
+RAG Retrieval
+       ↓
+Task Checker
+       ↓
+Оценка + обратная связь
+       ↓
+Tutor
+       ↓
+Диалог по задаче
+```
 
 ---
 
-# Результат pipeline
+# Хранение данных
 
-После успешного выполнения pipeline получаем:
+PostgreSQL содержит две таблицы:
 
 ```text
-knowledge/*.md
-       ↓
-Documents
-       ↓
-Chunks
-       ↓
-data/chunks/chunks.jsonl
-       ↓
-Embeddings
-       ↓
-data/chunks/embeddings.jsonl
-       ↓
-Qdrant
-       ↓
-python_knowledge
-       ↓
-Semantic Retrieval
+users
+tasks
 ```
 
-Текущий результат базы знаний:
+`users` хранит пользователей.
+
+`tasks` хранит:
+
+* тему;
+* сложность;
+* условие задачи;
+* решение пользователя;
+* результат проверки;
+* оценку;
+* дату создания;
+* историю диалога с Tutor.
+
+Полный диалог по задаче хранится в `tasks.solution_text`.
+
+---
+
+# Тестирование
+
+Тесты AI-агентов:
+
+```powershell
+python tests/test_task_generator.py
+python tests/test_task_checker.py
+python tests/test_tutor.py
+```
+
+Полный тест pipeline:
+
+```powershell
+python tests/test_pipeline.py
+```
+
+Он проверяет последовательную работу:
+
+```text
+RAG
+ ↓
+Task Generator
+ ↓
+PostgreSQL
+ ↓
+Task Checker
+ ↓
+PostgreSQL
+ ↓
+Tutor
+ ↓
+PostgreSQL
+```
+
+---
+
+# Текущий результат
+
+RAG-база содержит:
 
 ```text
 Chunks:              744
@@ -434,40 +434,37 @@ Qdrant collection:   python_knowledge
 Distance:             COSINE
 ```
 
----
+База знаний включает основные темы Python:
 
-# Данные для проверки
+* Basics;
+* Data Structures;
+* Object-Oriented Programming.
 
-Сгенерированные файлы intentionally находятся в репозитории:
+Источник материалов — официальная документация Python 3.14:
+
+https://docs.python.org/3.14/
+
+Сгенерированные chunks и embeddings находятся в репозитории:
 
 ```text
 data/chunks/chunks.jsonl
 data/chunks/embeddings.jsonl
 ```
 
-Это позволяет проверить результат работы ingestion pipeline без необходимости генерировать embeddings заново.
-
-Также в репозитории находится отчёт:
-
-```text
-data/rag_test_report.txt
-```
-
-с результатами тестирования semantic retrieval.
+Это позволяет ознакомиться с результатом подготовки RAG-базы без повторного запуска embeddings pipeline.
 
 ---
 
-# Источник базы знаний
+# Обновление зависимостей
 
-Материалы базы знаний подготовлены на основе официальной документации Python 3.14:
+После установки всех зависимостей в активированном `.venv`:
 
-https://docs.python.org/3.14/
+```powershell
+pip freeze > requirements.txt
+```
 
-Темы организованы по категориям:
+Проверить содержимое:
 
-* Basics
-* Data Structures
-* Object-Oriented Programming
-
-Markdown-файлы имеют структуру, подготовленную для дальнейшей RAG-обработки.
-
+```powershell
+Get-Content requirements.txt
+```

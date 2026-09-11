@@ -11,5 +11,22 @@ services:
     volumes:
       - qdrant_storage:/qdrant/storage
 
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: python_teacher
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "127.0.0.1:15432:5432"
+
+    volumes:
+      - postgres_storage:/var/lib/postgresql/data
+
 volumes:
   qdrant_storage:
+  postgres_storage:

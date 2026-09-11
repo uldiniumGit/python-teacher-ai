@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Python Teacher — Задача</title>
+
+    <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+</head>
+
+<body>
+
+<header class="header">
+    <div class="container header-content">
+
+        <a
+                href="{{ url_for('main.profile') }}"
+                class="logo"
+        >
+            PYTHON<span>TEACHER</span>
+        </a>
+
+        <nav class="nav">
+            <a href="{{ url_for('main.profile') }}">
+                Профиль
+            </a>
+        </nav>
+
+    </div>
+
+</header>
+
+<main class="container">
+
+    <div class="task-page">
+
+        <section class="task-content">
+
+            <!-- =====================================================
+                 TASK
+                 ===================================================== -->
+
+            <div class="task-meta">
+
+            <span>
+                {{ task.topic }}
+            </span>
+
+                <span>
+                {{ task.difficulty }}
+            </span>
+
+            </div>
+
+
+            <h1>
+                Задача
+            </h1>
+
+
+            <div class="task-description">
+                {{ task.task_text }}
+            </div>
+
+
+            {% if error %}
+
+            <div class="error-message">
+                {{ error }}
+            </div>
+
+            {% endif %}
+
+
+            <!-- =====================================================
+                 STEP 1 — SOLUTION
+                 ===================================================== -->
+
+            {% if task.score is none %}
+
+            <section class="solution-form">
+
+                <div class="section-heading">
+
+                    <p class="eyebrow">
+                        РЕШЕНИЕ
+                    </p>
+
+                    <h2>
+                        Введите решение
+                    </h2>
+
+                </div>
+
+
+                <form
+                        method="POST"
+                        action="{{ url_for('main.task', task_id=task.id) }}"
+                        id="check-form"
+                >
+
+                    <input
+                            type="hidden"
+                            name="action"
+                            value="check"
+                    >
+
+
+                    <div class="form-group">
+
+                        <label for="solution">
+                            Ваше решение
+                        </label>
+
+                        <textarea
+                                id="solution"
+                                name="solution"
+                                rows="14"
+                                placeholder="Напишите решение на Python..."
+                                required
+                        ></textarea>
+
+                    </div>
+
+
+                    <button
+                            type="submit"
+                            class="button button-primary"
+                            id="check-button"
+                    >
+                        Проверить решение
+                    </button>
+
+
+                    <div
+                            id="check-loading"
+                            class="loading-message"
+                            hidden
+                    >
+
+                        <div class="loading-spinner"></div>
+
+                        <div>
+
+                            <strong>
+                                Проверяем решение...
+                            </strong>
+
+                            <span>
+                            Анализируем код и сравниваем его с требованиями задачи.
+                        </span>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+
+            {% else %}
+
+            <!-- =================================================
+                 SOLUTION AFTER CHECK
+                 ================================================= -->
+
+            <section class="solution-form">
+
+                <div class="section-heading">
+
+                    <p class="eyebrow">
+                        ВАШЕ РЕШЕНИЕ
+                    </p>
+
+                    <h2>
+                        Решение отправлено
+                    </h2>
+
+                </div>
+
+
+                <pre><code>{{ parsed.solution }}</code></pre>
+
+            </section>
+
+
+            <!-- =================================================
+                 CHECKER RESULT
+                 ================================================= -->
+
+            <section class="feedback-section">
+
+                <div class="section-heading">
+
+                    <p class="eyebrow">
+                        РЕЗУЛЬТАТ ПРОВЕРКИ
+                    </p>
+
+                    <h2>
+                        {{ task.score }}/10
+                    </h2>
+
+                </div>
+
+
+                {% if parsed.feedback %}
+
+                <div class="message message-tutor">
+
+                    <div class="message-label">
+                        CHECKER
+                    </div>
+
+
+                    {% if parsed.feedback.is_correct %}
+
+                    <p>
+                        Решение корректное.
+                    </p>
+
+                    {% else %}
+
+                    <p>
+                        В решении есть ошибки.
+                    </p>
+
+                    {% endif %}
+
+
+                    {% if parsed.feedback.explanation %}
+
+                    <p>
+                        {{ parsed.feedback.explanation }}
+                    </p>
+
+                    {% endif %}
+
+
+                    {% if parsed.feedback.errors %}
+
+                    <p>
+                        <strong>
+                            Ошибки:
+                        </strong>
+                    </p>
+
+                    <ul>
+
+                        {% for error in parsed.feedback.errors %}
+
+                        <li>
+                            {{ error }}
+                        </li>
+
+                        {% endfor %}
+
+                    </ul>
+
+                    {% endif %}
+
+
+                    {% if parsed.feedback.recommendations %}
+
+                    <p>
+                        <strong>
+                            Рекомендации:
+                        </strong>
+                    </p>
+
+                    <ul>
+
+                        {% for recommendation in parsed.feedback.recommendations %}
+
+                        <li>
+                            {{ recommendation }}
+                        </li>
+
+                        {% endfor %}
+
+                    </ul>
+
+                    {% endif %}
+
+                </div>
+
+                {% endif %}
+
+            </section>
+
+
+            <!-- =================================================
+                 STEP 2 — TUTOR
+                 ================================================= -->
+
+            <section class="dialogue-section">
+
+                <div class="section-heading">
+
+                    <p class="eyebrow">
+                        TUTOR
+                    </p>
+
+                    <h2>
+                        Задайте вопрос
+                    </h2>
+
+                    <p class="subtitle">
+                        Задайте дополнительный вопрос по задаче
+                        или теме. Оценка решения при этом
+                        больше не изменяется.
+                    </p>
+
+                </div>
+
+
+                <!-- Existing dialogue -->
+
+                {% if parsed.history %}
+
+                <div class="dialogue">
+
+                    {% for message in parsed.history %}
+
+                    <div
+                            class="
+                        message
+                        {% if message.role == 'user' %}
+                            message-user
+                        {% else %}
+                            message-tutor
+                        {% endif %}
+                    "
+                    >
+
+                        <div class="message-label">
+
+                            {% if message.role == "user" %}
+                            YOU
+                            {% else %}
+                            TUTOR
+                            {% endif %}
+
+                        </div>
+
+
+                        <p class="message-content">
+                            {{ message.content }}
+                        </p>
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+                {% endif %}
+
+
+                <!-- New question -->
+
+                <form
+                        method="POST"
+                        action="{{ url_for('main.task', task_id=task.id) }}"
+                        class="dialogue-form"
+                        id="tutor-form"
+                >
+
+                    <input
+                            type="hidden"
+                            name="action"
+                            value="tutor"
+                    >
+
+
+                    <div class="form-group">
+
+                        <label for="question">
+                            Ваш вопрос
+                        </label>
+
+                        <textarea
+                                id="question"
+                                name="question"
+                                rows="5"
+                                placeholder="Задайте вопрос по теме задачи..."
+                                required
+                        ></textarea>
+
+                    </div>
+
+
+                    <button
+                            type="submit"
+                            class="button button-secondary"
+                            id="tutor-button"
+                    >
+                        Отправить вопрос
+                    </button>
+
+
+                    <div
+                            id="tutor-loading"
+                            class="loading-message"
+                            hidden
+                    >
+
+                        <div class="loading-spinner"></div>
+
+                        <div>
+
+                            <strong>
+                                AI-репетитор готовит ответ...
+                            </strong>
+
+                            <span>
+                            Анализируем вопрос и контекст задачи.
+                        </span>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- =========================================================
+             SIDEBAR
+             ========================================================= -->
+
+        <aside class="task-sidebar">
+
+            <div class="sidebar-block">
+
+                <p class="eyebrow">
+                    ТЕМА
+                </p>
+
+                <strong>
+                    {{ task.topic }}
+                </strong>
+
+            </div>
+
+
+            <div class="sidebar-block">
+
+                <p class="eyebrow">
+                    СЛОЖНОСТЬ
+                </p>
+
+                <strong>
+                    {{ task.difficulty }}
+                </strong>
+
+            </div>
+
+
+            {% if task.score is not none %}
+
+            <div class="sidebar-block">
+
+                <p class="eyebrow">
+                    БАЛЛЫ
+                </p>
+
+                <strong>
+                    {{ task.score }}/10
+                </strong>
+
+            </div>
+
+            {% endif %}
+
+        </aside>
+
+    </div>
+
+</main>
+
+<script>
+    const checkForm = document.getElementById("check-form");
+
+    if (checkForm) {
+        const checkButton = document.getElementById("check-button");
+        const checkLoading = document.getElementById("check-loading");
+
+        checkForm.addEventListener("submit", function () {
+            checkButton.disabled = true;
+            checkButton.textContent = "Проверяем...";
+            checkLoading.hidden = false;
+        });
+    }
+
+
+    const tutorForm = document.getElementById("tutor-form");
+
+    if (tutorForm) {
+        const tutorButton = document.getElementById("tutor-button");
+        const tutorLoading = document.getElementById("tutor-loading");
+
+        tutorForm.addEventListener("submit", function () {
+            tutorButton.disabled = true;
+            tutorButton.textContent = "Готовим ответ...";
+            tutorLoading.hidden = false;
+        });
+    }
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Python Teacher — Вход</title>
+
+    <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/style.css') }}"
+    >
+</head>
+
+<body>
+
+<div class="auth-page">
+
+    <div class="auth-card">
+
+        <div class="logo">
+            PYTHON<span>TEACHER</span>
+        </div>
+
+        <h1>Вход</h1>
+
+        <p class="subtitle">
+            Продолжите обучение Python
+        </p>
+
+
+        {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+        {% endif %}
+
+
+        <form
+                method="POST"
+                action="{{ url_for('main.login') }}"
+        >
+
+            <div class="form-group">
+
+                <label for="username">
+                    Имя пользователя
+                </label>
+
+                <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        placeholder="Введите имя пользователя"
+                        required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="password">
+                    Пароль
+                </label>
+
+                <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Введите пароль"
+                        required
+                >
+
+            </div>
+
+
+            <button
+                    type="submit"
+                    class="button button-primary"
+            >
+                Войти
+            </button>
+
+        </form>
+
+
+        <p class="auth-link">
+            Нет аккаунта?
+
+            <a href="{{ url_for('main.register') }}">
+                Зарегистрироваться
+            </a>
+        </p>
+
+    </div>
+
+</div>
+
+</body>
+</html>

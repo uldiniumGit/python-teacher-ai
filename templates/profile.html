@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Python Teacher — Профиль</title>
+
+    <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/style.css') }}"
+    >
+</head>
+
+<body>
+
+<header class="header">
+    <div class="container header-content">
+
+        <a
+                href="{{ url_for('main.profile') }}"
+                class="logo"
+        >
+            PYTHON<span>TEACHER</span>
+        </a>
+
+        <nav class="nav">
+
+            <span class="username">
+                {{ user.username }}
+            </span>
+
+            <a href="{{ url_for('main.logout') }}">
+                Выйти
+            </a>
+
+        </nav>
+
+    </div>
+</header>
+
+
+<main class="container">
+
+    <section class="profile-header">
+
+        <div>
+
+            <p class="eyebrow">
+                ПРОФИЛЬ
+            </p>
+
+            <h1>
+                {{ user.username }}
+            </h1>
+
+            <p class="subtitle">
+                История задач и результаты обучения.
+            </p>
+
+        </div>
+
+        <a
+                href="{{ url_for('main.generate') }}"
+                class="button button-primary"
+        >
+            Новая задача
+        </a>
+
+    </section>
+
+
+    <section class="tasks-section">
+
+        {% if tasks %}
+
+        <div class="tasks-header">
+            <span>Тема</span>
+            <span>Сложность</span>
+            <span>Баллы</span>
+        </div>
+
+        {% for task in tasks %}
+
+        <a
+                href="{{ url_for('main.task', task_id=task.id) }}"
+                class="task-row"
+        >
+
+                    <span class="task-topic">
+                        {{ task.topic }}
+                    </span>
+
+            <span
+                    class="
+                            difficulty
+                            difficulty-{{ task.difficulty }}
+                        "
+            >
+                        {{ task.difficulty }}
+                    </span>
+
+            <span class="score">
+                        {{ task.score }}/10
+                    </span>
+
+        </a>
+
+        {% endfor %}
+
+        {% else %}
+
+        <div class="empty-state">
+
+            <p>
+                У вас пока нет решённых задач.
+            </p>
+
+            <a
+                    href="{{ url_for('main.generate') }}"
+                    class="button button-secondary"
+            >
+                Создать первую задачу
+            </a>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+</body>
+</html>

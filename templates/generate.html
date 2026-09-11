@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Teacher — Новая задача</title>
+
+
+    <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+
+</head>
+
+<body>
+
+<header class="header">
+    <div class="container header-content">
+
+
+        <a
+                href="{{ url_for('main.profile') }}"
+                class="logo"
+        >
+            PYTHON<span>TEACHER</span>
+        </a>
+
+        <nav class="nav">
+            <a href="{{ url_for('main.profile') }}">
+                Профиль
+            </a>
+        </nav>
+
+    </div>
+
+
+</header>
+
+<main class="container">
+
+
+    <section class="generate-page">
+
+        <div class="generate-intro">
+
+            <p class="eyebrow">
+                НОВАЯ ЗАДАЧА
+            </p>
+
+            <h1>
+                Что будем изучать?
+            </h1>
+
+            <p class="subtitle">
+                Выберите тему и сложность. AI сгенерирует практическую задачу
+                на основе базы знаний Python.
+            </p>
+
+        </div>
+
+
+        <form
+                method="POST"
+                action="{{ url_for('main.generate') }}"
+                class="generate-form"
+                id="generate-form"
+        >
+
+            <div class="form-group">
+
+                <label for="topic">
+                    Тема
+                </label>
+
+                <select
+                        id="topic"
+                        name="topic"
+                        required
+                >
+                    <option value="" selected disabled>
+                        Выберите тему
+                    </option>
+
+                    <option value="variables">
+                        Variables
+                    </option>
+
+                    <option value="data_types">
+                        Data Types
+                    </option>
+
+                    <option value="conditions">
+                        Conditions
+                    </option>
+
+                    <option value="loops">
+                        Loops
+                    </option>
+
+                    <option value="functions">
+                        Functions
+                    </option>
+
+                    <option value="list">
+                        Lists
+                    </option>
+
+                    <option value="tuple">
+                        Tuples
+                    </option>
+
+                    <option value="set">
+                        Sets
+                    </option>
+
+                    <option value="dict">
+                        Dictionaries
+                    </option>
+
+                    <option value="classes">
+                        Classes
+                    </option>
+
+                    <option value="inheritance">
+                        Inheritance
+                    </option>
+
+                    <option value="polymorphism">
+                        Polymorphism
+                    </option>
+
+                    <option value="encapsulation">
+                        Encapsulation
+                    </option>
+
+                    <option value="magic_methods">
+                        Magic Methods
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="difficulty">
+                    Сложность
+                </label>
+
+                <select
+                        id="difficulty"
+                        name="difficulty"
+                        required
+                >
+                    <option value="" selected disabled>
+                        Выберите сложность
+                    </option>
+
+                    <option value="easy">
+                        Easy
+                    </option>
+
+                    <option value="medium">
+                        Medium
+                    </option>
+
+                    <option value="hard">
+                        Hard
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <button
+                    type="submit"
+                    class="button button-primary"
+                    id="generate-button"
+            >
+                Сгенерировать задачу
+            </button>
+
+
+            <div
+                    id="generate-loading"
+                    class="loading-message"
+                    hidden
+            >
+
+                <div class="loading-spinner"></div>
+
+                <div>
+
+                    <strong>
+                        Генерируем задачу...
+                    </strong>
+
+                    <span>
+                    Ищем информацию в базе знаний и подготавливаем задание.
+                </span>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+</main>
+
+<script>
+    const generateForm = document.getElementById("generate-form");
+    const generateButton = document.getElementById("generate-button");
+    const generateLoading = document.getElementById("generate-loading");
+
+    generateForm.addEventListener("submit", function () {
+        generateButton.disabled = true;
+        generateButton.textContent = "Генерируем...";
+        generateLoading.hidden = false;
+    });
+
+
+</script>
+
+</body>
+</html>
